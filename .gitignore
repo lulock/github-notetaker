@@ -37,8 +37,7 @@ jspm_packages
 .node_repl_history
 
 # mac
-*.DS_Store
-
+.DS_Store
 node_modules
 public/bundle.js
 
