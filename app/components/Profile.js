@@ -9,37 +9,47 @@ var ReactFireMixin = require('reactfire');
 var Firebase = require('firebase');
 
 var Profile = React.createClass({
-    mixin:[ReactFireMixin],
+    mixins:[ReactFireMixin],
     getInitialState: function(){
         return {
-            notes: [1,2,3],// creates a new array,
+            notes: [],// creates a new array,
             bio: {
                 name: 'Leila'
             }, //creates a new empty object,
             repos:['a','b','c']
         }
     },
-    ComponentDidMount: function(){
-        this.ref = Firebase('https://github-notetaker-b271a.firebaseio.com/');
-        var childRef = this.ref.child(this.props.param.username);
+    componentDidMount: function(){
+        console.log('we really out here');
+        console.log(this.props.notes);
+        this.ref = new Firebase('https://github-notetaker-b271a.firebaseio.com/');
+        var childRef = this.ref.child(this.props.params.username);
         this.bindAsArray(childRef, 'notes');
     }, // callback function. Where you make all your AJAX requests etc.
-    ComponentWillUnmount: function(){
+    componentWillUnmount: function(){
         this.unbind('notes');        
+    },
+    handleAddNote: function (newNote) {
+        //update firebase with new notes
+        this.ref.child(this.props.params.username).child(this.state.notes.length).set(newNote)
     },
     render: function(){
         return(
-        <div className="row">
-            <div className="col-md-4">
-                <UserProfile username={this.props.params.username} bio={this.state.bio}/>
+            <div className="row">
+                <div className="col-md-4">
+                    <UserProfile username={this.props.params.username} bio={this.state.bio}/>
+                </div>
+                <div className="col-md-4">
+                    <Repos username={this.props.params.username} repos={this.state.repos}/>
+                </div>
+                <div className="col-md-4">
+                    <Notes 
+                        username={this.props.params.username} 
+                        notes={this.state.notes}
+                        addNote={this.handleAddNote}
+                        />
+                </div>
             </div>
-            <div className="col-md-4">
-                <Repos username={this.props.params.username} repos={this.state.repos}/>
-            </div>
-            <div className="col-md-4">
-                <Notes username={this.props.params.username} notes={this.state.notes}/>
-            </div>
-        </div>
         )
     }
 });
