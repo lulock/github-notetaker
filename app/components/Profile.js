@@ -5,18 +5,20 @@ var Repos = require('./Github/repos');
 var UserProfile = require('./Github/UserProfile');
 
 var Notes = require('./Notes/notes');
+
 var ReactFireMixin = require('reactfire');
 var Firebase = require('firebase');
+
+var helpers = require('../utils/helpers');
+
 
 var Profile = React.createClass({
     mixins:[ReactFireMixin],
     getInitialState: function(){
         return {
             notes: [],// creates a new array,
-            bio: {
-                name: 'Leila'
-            }, //creates a new empty object,
-            repos:['a','b','c']
+            bio: {}, //creates a new empty object,
+            repos:[]
         }
     },
     componentDidMount: function(){
@@ -25,6 +27,15 @@ var Profile = React.createClass({
         this.ref = new Firebase('https://github-notetaker-b271a.firebaseio.com/');
         var childRef = this.ref.child(this.props.params.username);
         this.bindAsArray(childRef, 'notes');
+        
+        helpers.getGithubInfo(this.props.params.username)
+        .then(function(data){
+          this.setState({
+              bio: data.bio,
+              repos: data.repos
+          })  
+        }.bind(this))
+        
     }, // callback function. Where you make all your AJAX requests etc.
     componentWillUnmount: function(){
         this.unbind('notes');        
