@@ -23,22 +23,29 @@ var Profile = React.createClass({
     },
     componentDidMount: function(){
         console.log('we really out here');
-        console.log(this.props.notes);
         this.ref = new Firebase('https://github-notetaker-b271a.firebaseio.com/');
-        var childRef = this.ref.child(this.props.params.username);
-        this.bindAsArray(childRef, 'notes');
-        
-        helpers.getGithubInfo(this.props.params.username)
-        .then(function(data){
-          this.setState({
-              bio: data.bio,
-              repos: data.repos
-          })  
-        }.bind(this))
-        
+        this.init(this.props.params.username);
     }, // callback function. Where you make all your AJAX requests etc.
+    componentWillReceiveProps: function(nextProps){
+        console.log('next props is', nextProps);
+        this.unbind('notes');        
+        this.init(nextProps.params.username);
+    },
     componentWillUnmount: function(){
         this.unbind('notes');        
+    },
+    init: function(username){
+        var childRef = this.ref.child(username);
+        this.bindAsArray(childRef, 'notes');
+
+        helpers.getGithubInfo(username)
+            .then(function(data){
+            this.setState({
+                bio: data.bio,
+                repos: data.repos
+            })  
+        }.bind(this))
+
     },
     handleAddNote: function (newNote) {
         //update firebase with new notes
